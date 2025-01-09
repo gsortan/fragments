@@ -11,5 +11,8 @@
     "url": "git+https://github.com/gsortan/fragments.git"
   },
   "author": "Gordon Tan",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "prettier": "3.4.2"
+  }
 }
