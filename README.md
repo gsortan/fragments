@@ -6,7 +6,7 @@ This is a repo for the cloud computing course (CCP555)
 
 npm run lint - Runs ESlint to ensure code quality.\
 npm start - Start application using Node.js and is used to just run server normally.\
-npm run dev - Run server through nodemon which will watch the src/\*\* folder for any chances and restarts when server is updated. The log level is set to debug on this.\
+npm run dev - Run server through nodemon which will watch the src/\*\* folder for any changes and restarts when server is updated. The log level is set to debug on this.\
 npm run debug - This is the same as dev but also starts node inspector on port 9229 so you can attach a debugger. The log level is set to debug on this.
 
 # Environment Variables
