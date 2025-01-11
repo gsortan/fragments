@@ -20,4 +20,5 @@ Default is info and debug gives more detailed information
 -There is also curl commands:
 -curl localhost:8080
 -curl.exe localhost:8080 - Windows Powershell
--curl -s http://localhost:8080 | jq - Pretty print format with jq piping so info looks nicer. Also note, the -s option silences the usual output to CURL, only sending the response from the server to jq
+-curl -s http://localhost:8080 | jq - Pretty print format with jq piping so info looks nicer. Also note, the -s option silences the usual output to CURL, only sending the response from the server to jq.
+-i includes all http headers in curl response
