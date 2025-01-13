@@ -11,13 +11,14 @@ npm run debug - This is the same as dev but also starts node inspector on port 9
 
 # Environment Variables
 
-LOG_LEVEL: Controls the information of pino logs\
-Default is info and debug gives more detailed information
+LOG_LEVEL: Controls the information of pino logs with things like warn, error, info and debug\
+Default is info\
+PORT: Port number that server is connecting to
 
 # Testing
 
 -You can use localhost:8080 for local testing\
--Curl commands:\
+Curl commands:\
 -curl localhost:8080\
 -curl.exe localhost:8080 - Windows Powershell\
 -curl -s http://localhost:8080 | jq - Pretty print format with jq piping so info looks nicer.\
