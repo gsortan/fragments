@@ -4,6 +4,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const passport = require('passport');
+const authenticate = require('./auth');
 
 // author and version from our package.json file
 // TODO: make sure you have updated your name in the `author` section
@@ -29,6 +31,9 @@ app.use(cors());
 
 // Use gzip/deflate compression middleware
 app.use(compression());
+
+passport.use(authenticate.strategy());
+app.use(passport.initialize());
 
 app.use('/', require('./routes'));
 // Add 404 middleware to handle any requests for resources that can't be found
