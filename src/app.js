@@ -1,5 +1,6 @@
 // src/app.js
 
+const { createErrorResponse } = require('../src/response');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -34,13 +35,8 @@ app.use(passport.initialize());
 app.use('/', require('./routes'));
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    error: {
-      message: 'not found',
-      code: 404,
-    },
-  });
+  const errorResponse = createErrorResponse(404, 'not found');
+  res.status(404).json(errorResponse);
 });
 
 // Add error-handling middleware to deal with anything else
