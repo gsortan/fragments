@@ -3,7 +3,7 @@
 /**
  * Get a fragment by ID for user
  */
-const { createErrorResponse, createSuccessResponse } = require('../../response');
+const { createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
 
@@ -14,8 +14,6 @@ module.exports = async (req, res) => {
     logger.debug({ fragment }, 'Returned fragment meta data by Id');
     const fragData = await fragment.getData();
     logger.debug({ fragData }, 'Returned fragment data');
-
-    const successResponse = createSuccessResponse({ fragment: fragData });
 
     res.setHeader('Content-Type', fragment.mimeType);
 
