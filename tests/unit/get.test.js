@@ -20,5 +20,52 @@ describe('GET /v1/fragments', () => {
     expect(Array.isArray(res.body.fragments)).toBe(true);
   });
 
-  // TODO: we'll need to add tests to check the contents of the fragments array later
+  test('Should receive some form of data in body if populated and added to fragments array', async () => {
+    const data = Buffer.from('TestString');
+
+    await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send(data);
+
+    const res = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(Array.isArray(res.body.fragments)).toBe(true);
+    expect(res.body.fragments.length).toBe(1);
+  });
+
+  test('Using id to get specific fragment', async () => {
+    const data = Buffer.from('TestString');
+
+    await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send(data);
+
+    const res1 = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
+    expect(res1.statusCode).toBe(200);
+    expect(res1.body.status).toBe('ok');
+    expect(Array.isArray(res1.body.fragments)).toBe(true);
+
+    const fragmentId = res1.body.fragments[0];
+    const res2 = await request(app)
+      .get(`/v1/fragments/${fragmentId}`)
+      .auth('user1@email.com', 'password1');
+
+    expect(res2.statusCode).toBe(200);
+
+    expect(res2.text).toBe('TestString');
+  });
+
+  test('Invalid id to get fragment', async () => {
+    const fragmentId = 'invalid';
+    const res = await request(app)
+      .get(`/v1/fragments/${fragmentId}`)
+      .auth('user1@email.com', 'password1');
+
+    expect(res.statusCode).toBe(404);
+  });
 });

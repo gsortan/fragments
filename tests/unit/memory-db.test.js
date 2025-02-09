@@ -1,5 +1,13 @@
 // Fix this path to point to your project's `memory-db.js` source file
 const MemoryDB = require('../../src/model/data/memory/memory-db');
+const {
+  writeFragment,
+  readFragment,
+  writeFragmentData,
+  readFragmentData,
+  deleteFragment,
+  listFragments,
+} = require('../../src/model/data/memory/index');
 
 describe('memory-db', () => {
   let db;
@@ -86,5 +94,162 @@ describe('memory-db', () => {
     expect(async () => await db.del()).rejects.toThrow();
     expect(async () => await db.del(1)).rejects.toThrow();
     expect(async () => await db.del(1, 1)).rejects.toThrow();
+  });
+});
+
+describe('Fragment operations', () => {
+  function uniqueId() {
+    const uuid = crypto.randomUUID();
+    return uuid;
+  }
+
+  test('writeFragment() returns nothing ', async () => {
+    const fragment = {
+      ownerId: uniqueId(),
+      id: 'randomtest',
+    };
+
+    const result = await writeFragment(fragment);
+
+    expect(result).toBeUndefined();
+  });
+
+  test('readFragment() returns what we stored in database with writeFragment()', async () => {
+    const fragment = {
+      ownerId: uniqueId(),
+      id: 'randmomtest',
+    };
+
+    await writeFragment(fragment);
+
+    const result = await readFragment(fragment.ownerId, fragment.id);
+
+    expect(result).toEqual(fragment);
+  });
+
+  test('readFragment() returns nothing when it is unable to find matching primary key', async () => {
+    const result = await readFragment(uniqueId(), 'b');
+
+    expect(result).toBeUndefined();
+  });
+
+  test('readFragment() with incorrect secondary key returns nothing', async () => {
+    const fragment = {
+      ownerId: uniqueId(),
+      id: 'randmomtest',
+    };
+
+    await writeFragment(fragment);
+
+    const result = await readFragment(fragment.ownerId, 'incorrectKey');
+
+    expect(result).toBeUndefined();
+  });
+
+  test('readFragment() expecting string keys', async () => {
+    expect(async () => await readFragment().rejects().toThrow());
+    expect(async () => await readFragment(1).rejects().toThrow());
+    expect(async () => await readFragment(1, 1).rejects().toThrow());
+  });
+
+  test('writeFragmentData() returns nothing', async () => {
+    const result = await writeFragmentData(uniqueId(), 'test', []);
+
+    expect(result).toBeUndefined();
+  });
+
+  test('writeFragmentData() and readFragmentData() can put in raw data and retrieve buffer', async () => {
+    const data = Buffer.from([1, 2, 3]);
+    const uniqueID = uniqueId();
+    await writeFragmentData(uniqueID, 'test', data);
+    const result = await readFragmentData(uniqueID, 'test');
+    expect(result).toEqual(data);
+  });
+
+  test('readFragmentData() and using non-existent primary key', async () => {
+    const uniqueID = uniqueId();
+    const result = await readFragmentData(uniqueID, 'test');
+    expect(result).toBeUndefined();
+  });
+
+  test('readFragmentData() and wrong secondary key used', async () => {
+    const data = Buffer.from([1, 2, 3]);
+    const uniqueID = uniqueId();
+    await writeFragmentData(uniqueID, 'test', data);
+    const result = await readFragmentData(uniqueID, 'wrong');
+    expect(result).toBeUndefined();
+  });
+
+  test('readFragmentData() expecting string keys', async () => {
+    expect(async () => await readFragmentData().rejects().toThrow());
+    expect(async () => await readFragmentData(1).rejects().toThrow());
+    expect(async () => await readFragmentData(1, 1).rejects().toThrow());
+  });
+
+  test('listFragments() check if it gets empty array', async () => {
+    const ownerId = uniqueId();
+    const result = await listFragments(ownerId);
+
+    expect(result).toEqual([]);
+  });
+
+  test('listFragments() should return an id with no expand', async () => {
+    const fragment = {
+      ownerId: uniqueId(),
+      id: 'randomtest',
+    };
+
+    await writeFragment(fragment);
+
+    const result = await listFragments(fragment.ownerId);
+
+    expect(result).toEqual(['randomtest']);
+  });
+
+  test('listFragments() should return an id with an expand', async () => {
+    const fragment = {
+      ownerId: uniqueId(),
+      id: 'randomtest',
+    };
+    const data = Buffer.from('this is a fragment');
+
+    await writeFragment(fragment);
+    await writeFragmentData(fragment.ownerId, fragment.id, data);
+
+    const result = await listFragments(fragment.ownerId, true);
+
+    expect(result).toEqual([{ ownerId: fragment.ownerId, id: 'randomtest' }]);
+  });
+
+  test('deleteFragmentData() using non-string keys', async () => {
+    expect(async () => await deleteFragment().rejects().toThrow());
+    expect(async () => await deleteFragment(1).rejects().toThrow());
+    expect(async () => await deleteFragment(1, 1).rejects().toThrow());
+  });
+
+  test('deleteFragmentData() using non-existent keys', async () => {
+    expect(async () => await deleteFragment('11111', '1111111').rejects().toThrow());
+  });
+
+  test('deleteFragment() successfully deletes a fragment', async () => {
+    const fragment = {
+      ownerId: uniqueId(),
+      id: 'randomtest',
+    };
+    const data = Buffer.from('this is a fragment');
+
+    await writeFragment(fragment);
+    await writeFragmentData(fragment.ownerId, fragment.id, data);
+
+    const storedResultFragment = await readFragment(fragment.ownerId, fragment.id);
+    expect(storedResultFragment).toBeDefined();
+
+    const storedResultData = await readFragmentData(fragment.ownerId, fragment.id);
+    expect(storedResultData).toEqual(data);
+
+    await deleteFragment(fragment.ownerId, fragment.id);
+
+    const storedResultFragment2 = await readFragment(fragment.ownerId, fragment.id);
+    expect(storedResultFragment2).toBeUndefined();
   });
 });
