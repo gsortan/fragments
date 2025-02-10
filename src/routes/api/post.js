@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
     await newFragment.setData(req.body);
 
     res
+      .setHeader('Content-Type', type)
       .status(201)
       .location(`${locationURL}/${newFragment.id}`)
       .json(createSuccessResponse({ fragment: newFragment }));
