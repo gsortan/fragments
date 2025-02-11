@@ -27,7 +27,7 @@ describe('POST /v1/fragments', () => {
       .set('Content-Type', 'text/plain')
       .send(data);
 
-    parsedRes = JSON.parse(res.text);
+    const parsedRes = JSON.parse(res.text);
 
     expect(res.status).toBe(201);
     expect(parsedRes.status).toBe('ok');
