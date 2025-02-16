@@ -1,4 +1,5 @@
-# Dockerfile for setting up node.js fragments microservice
+# Dockerfile for setting up node.js fragments microservice environment 
+# Creating a new build from a base image using node and specific version: https://docs.docker.com/reference/dockerfile/#from 
 
 FROM node:22.13.0
 
