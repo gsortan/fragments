@@ -1,7 +1,7 @@
 # Dockerfile for setting up node.js fragments microservice environment 
 # Creating a new build from a base image using node and specific version: https://docs.docker.com/reference/dockerfile/#from 
 
-FROM node:22.13.0
+FROM node:22.13.0-alpine3.21@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af145 as build
 
 LABEL maintainer="Gordon Tan <gtan16@myseneca.ca>"
 LABEL description="Fragments node.js microservice"
@@ -26,13 +26,21 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install node dependencies defined in package-lock.json
-RUN npm install
+RUN npm ci --only=production
 
 # Copy src to /app/src/
 COPY ./src ./src
 
-# Copy our HTPASSWD file
-COPY ./tests/.htpasswd ./tests/.htpasswd
+
+######################################################################
+
+FROM node@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af145 AS production
+
+WORKDIR /app
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/src ./src
+COPY --from=build /app/package.json ./
 
 # Start the container by running our server
 CMD npm start
