@@ -43,7 +43,7 @@ FROM node@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af14
 WORKDIR /app
 
 # Add tini here
-RUN apk add --no-cache tini
+RUN apk add --no-cache tini=0.19.0-r3
 
 USER node
 
