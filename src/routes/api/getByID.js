@@ -1,5 +1,3 @@
-// src/routes/api/get.js
-
 /**
  * Get a fragment by ID for user
  */
@@ -20,6 +18,10 @@ module.exports = async (req, res) => {
     res.status(200).send(fragData);
   } catch (error) {
     logger.error(`Error getting by fragment ID:"${error.message}`);
-    return res.status(404).json(createErrorResponse(404, error.message));
+    if (error.message.includes('not found')) {
+      return res.status(404).json(createErrorResponse(404, error.message));
+    }
+
+    return res.status(500).json(createErrorResponse(500, 'Internal Server Error'));
   }
 };

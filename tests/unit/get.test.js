@@ -23,15 +23,18 @@ describe('GET /v1/fragments', () => {
   test('Should receive some form of data in body if populated and added to fragments array', async () => {
     const data = Buffer.from('TestString');
 
-    await request(app)
+    const response = await request(app)
       .post('/v1/fragments')
       .auth('user1@email.com', 'password1')
       .set('Content-Type', 'text/plain')
       .send(data);
 
+    expect(response.status).toBe(201);
+    expect(response.body.status).toBe('ok');
+
     const res = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
-    expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe('ok');
+    expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.fragments)).toBe(true);
     expect(res.body.fragments.length).toBe(1);
   });
@@ -64,6 +67,45 @@ describe('GET /v1/fragments', () => {
     const fragmentId = 'invalid';
     const res = await request(app)
       .get(`/v1/fragments/${fragmentId}`)
+      .auth('user1@email.com', 'password1');
+
+    expect(res.statusCode).toBe(404);
+  });
+
+  test('Using id to get specific fragment meta data from info route', async () => {
+    const data = Buffer.from('TestString');
+
+    await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send(data);
+
+    const res1 = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
+    expect(res1.statusCode).toBe(200);
+    expect(res1.body.status).toBe('ok');
+    expect(Array.isArray(res1.body.fragments)).toBe(true);
+
+    const fragmentId = res1.body.fragments[0];
+    const res2 = await request(app)
+      .get(`/v1/fragments/${fragmentId}/info`)
+      .auth('user1@email.com', 'password1');
+
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.status).toBe('ok');
+    expect(res2.body.fragment).toBeDefined();
+    expect(res2.body.fragment).toHaveProperty('id');
+    expect(res2.body.fragment).toHaveProperty('ownerId');
+    expect(res2.body.fragment).toHaveProperty('created');
+    expect(res2.body.fragment).toHaveProperty('updated');
+    expect(res2.body.fragment).toHaveProperty('type', 'text/plain');
+    expect(res2.body.fragment).toHaveProperty('size', data.length);
+  });
+
+  test('Invalid id to get fragment meta data from info route', async () => {
+    const fragmentId = 'invalid';
+    const res = await request(app)
+      .get(`/v1/fragments/${fragmentId}/info`)
       .auth('user1@email.com', 'password1');
 
     expect(res.statusCode).toBe(404);

@@ -27,19 +27,22 @@ describe('POST /v1/fragments', () => {
       .set('Content-Type', 'text/plain')
       .send(data);
 
-    const parsedRes = JSON.parse(res.text);
+    // Use res.body instead of JSON.parse(res.text)
+    expect(res.body.status).toBe('ok');
+    expect(res.statusCode).toBe(201);
+    expect(res.body.fragment).toHaveProperty('id');
+    expect(res.body.fragment).toHaveProperty('ownerId');
+    expect(res.body.fragment).toHaveProperty('created');
+    expect(res.body.fragment).toHaveProperty('updated');
+    expect(res.body.fragment).toHaveProperty('type');
+    expect(res.body.fragment).toHaveProperty('size');
 
-    expect(res.status).toBe(201);
-    expect(parsedRes.status).toBe('ok');
-    expect(parsedRes.fragment).toHaveProperty('id');
-    expect(parsedRes.fragment).toHaveProperty('ownerId');
-    expect(parsedRes.fragment).toHaveProperty('created');
-    expect(parsedRes.fragment).toHaveProperty('updated');
-    expect(parsedRes.fragment).toHaveProperty('type');
-    expect(parsedRes.fragment).toHaveProperty('size');
-    expect(parsedRes.fragment.ownerId).toEqual(hash('user1@email.com'));
-    expect(parsedRes.fragment.size).toBe(10);
-    expect(parsedRes.fragment.type).toBe('text/plain');
+    // Validate owner ID and size
+    expect(res.body.fragment.ownerId).toEqual(hash('user1@email.com'));
+    expect(res.body.fragment.size).toBe(Buffer.byteLength(data));
+
+    // Validate Content-Type
+    expect(res.body.fragment.type).toBe('text/plain');
   });
 
   test('500 error for invalid media type', async () => {

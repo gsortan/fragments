@@ -4,7 +4,13 @@ const { Fragment } = require('../../src/model/fragment');
 const wait = async (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const validTypes = [
-  `text/plain`,
+  'text/plain',
+  'text/plain; charset=utf-8',
+  'text/markdown',
+  'text/html',
+  'text/csv',
+  'application/json',
+  'application/yaml',
   /*
    Currently, only text/plain is supported. Others will be added later.
 

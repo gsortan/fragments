@@ -20,16 +20,20 @@ ENV NPM_CONFIG_COLOR=false
 # Use /app as our working directory
 WORKDIR /app
 
+USER node
+
 # Option 2: relative path - Copy the package.json and package-lock.json
 # files into the working dir (/app).  NOTE: this requires that we have
 # already set our WORKDIR in a previous step.
-COPY package*.json ./
+COPY --chown=node:node package*.json ./
 
+USER root
 # Install node dependencies defined in package-lock.json
 RUN npm ci --only=production
+USER node
 
 # Copy src to /app/src/
-COPY ./src ./src
+COPY --chown=node:node ./src ./src
 
 
 ######################################################################
@@ -38,9 +42,21 @@ FROM node@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af14
 
 WORKDIR /app
 
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/src ./src
-COPY --from=build /app/package.json ./
+# Add tini here
+RUN apk add --no-cache tini
+
+USER node
+
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/src ./src
+COPY --from=build --chown=node:node /app/package.json ./
+
+# Use tini as the init system
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Automated Health Check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl --f lhttp://localhost:3000 || exit 1
 
 # Start the container by running our server
 CMD npm start

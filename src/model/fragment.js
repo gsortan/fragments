@@ -24,6 +24,16 @@ const {
   deleteFragment,
 } = require('./data');
 
+const validTypes = [
+  'text/plain',
+  'text/plain; charset=utf-8',
+  'text/markdown',
+  'text/html',
+  'text/csv',
+  'application/json',
+  'application/yaml',
+];
+
 class Fragment {
   constructor({ id, ownerId, created, updated, type, size = 0 }) {
     logger.info({ id, ownerId, created, updated, type, size }, 'Creating new fragment instance');
@@ -33,9 +43,9 @@ class Fragment {
         `ownerId and type strings are required, got ownerId=${ownerId}, type=${type}`
       );
     }
-    if (type !== 'text/plain' && type !== 'text/plain; charset=utf-8') {
-      logger.error(`Type is invalid and not text/plain or text/plain; charset=utf-8`);
-      throw new Error(`Type is invalid and not text/plain or text/plain; charset=utf-8 `);
+    if (!Fragment.isSupportedType(type)) {
+      logger.error(`Type is invalid and not supported`);
+      throw new Error(`Type is invalid and not supported`);
     }
 
     if (!validateNumber(size)) {
@@ -150,8 +160,6 @@ class Fragment {
     await writeFragmentData(this.ownerId, this.id, data);
 
     await this.save();
-
-    return Promise.resolve();
   }
 
   /**
@@ -173,7 +181,7 @@ class Fragment {
   get isText() {
     logger.info('Executing is text function');
     logger.debug(`Mime type: ${this.mimeType}`);
-    return this.mimeType === 'text/plain';
+    return this.mimeType.startsWith('text/');
   }
 
   /**
@@ -210,7 +218,7 @@ class Fragment {
    */
   static isSupportedType(value) {
     logger.info('Is supported type function');
-    if (value === 'text/plain' || value === 'text/plain; charset=utf-8') {
+    if (validTypes.includes(value)) {
       return true;
     }
     return false;
