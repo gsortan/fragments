@@ -1,6 +1,8 @@
 # Dockerfile for setting up node.js fragments microservice environment 
 # Creating a new build from a base image using node and specific version: https://docs.docker.com/reference/dockerfile/#from 
 
+# Stage 1 - Build
+
 FROM node:22.13.0-alpine3.21@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af145 as build
 
 LABEL maintainer="Gordon Tan <gtan16@myseneca.ca>"
@@ -37,6 +39,7 @@ COPY --chown=node:node ./src ./src
 
 
 ######################################################################
+# Stage 2 - Production
 
 FROM node@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af145 AS production
 
