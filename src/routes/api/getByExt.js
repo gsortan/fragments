@@ -1,5 +1,5 @@
 /**
- * Get a fragment metadata with ID
+ * Fragment conversion with EXT here
  */
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
