@@ -8,21 +8,32 @@ const { createErrorResponse } = require('../../response');
 
 const md = markdownit();
 
+const validTypes = ['txt', 'md', 'html', 'csv', 'json', 'yaml', 'yml'];
+
 module.exports = async (req, res) => {
   try {
+    if (!validTypes.includes(req.params.ext)) {
+      logger.error(`Unsupported Content-Type received: ${req.params.ext}`);
+      return res
+        .status(415)
+        .json(createErrorResponse(415, `Unsupported Content-Type received: ${req.params.ext}`));
+    }
+
     logger.info('Conversion of fragment route');
     const fragment = await Fragment.byId(req.user, req.params.id);
     logger.debug({ fragment }, 'Returned fragment meta data by Id');
     const fragData = await fragment.getData();
     let convertedData;
 
-    res.setHeader('Content-Type', fragment.mimeType);
     logger.debug(req.params.ext);
     if (fragment.mimeType === 'text/markdown' && req.params.ext === 'html') {
+      res.setHeader('Content-Type', 'text/html');
       logger.info('Conversion of markdown to html');
       logger.debug(fragData);
       convertedData = md.render(fragData.toString());
       return res.status(200).send(convertedData);
+    } else {
+      res.setHeader('Content-Type', fragment.mimeType);
     }
 
     return res.status(200).send(fragData);
