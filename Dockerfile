@@ -3,7 +3,7 @@
 
 # Stage 1 - Build
 
-FROM node:22.13.0-alpine3.21@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af145 as build
+FROM node:22.13.0-alpine3.21@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af145 AS build
 
 LABEL maintainer="Gordon Tan <gtan16@myseneca.ca>"
 LABEL description="Fragments node.js microservice"
@@ -59,7 +59,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 
 # Automated Health Check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl --f lhttp://localhost:3000 || exit 1
+  CMD curl --f http://localhost:8080 || exit 1
 
 # Start the container by running our server
 CMD ["npm", "start"]
