@@ -37,6 +37,9 @@ USER node
 # Copy src to /app/src/
 COPY --chown=node:node ./src ./src
 
+# Copy tests to /app/test/
+COPY --chown=node:node ./tests/.htpasswd /app/tests/.htpasswd
+
 
 ######################################################################
 # Stage 2 - Production
@@ -53,6 +56,7 @@ USER node
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/src ./src
 COPY --from=build --chown=node:node /app/package.json ./
+COPY --from=build --chown=node:node /app/tests/.htpasswd /app/tests/.htpasswd
 
 # Use tini as the init system
 ENTRYPOINT ["/sbin/tini", "--"]

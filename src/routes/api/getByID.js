@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     const fragData = await fragment.getData();
     logger.debug({ fragData }, 'Returned fragment data');
 
-    res.setHeader('Content-Type', fragment.mimeType);
+    res.setHeader('Content-Type', fragment.type);
 
     res.status(200).send(fragData);
   } catch (error) {
