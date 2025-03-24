@@ -22,6 +22,10 @@
           "value": "us-east-1_vwadqDb4A"
         },
         {
+          "name": "AWS_S3_BUCKET_NAME",
+          "value": "s3://gordon.tan-fragments"
+        },
+        {
           "name": "API_URL",
           "value": "http://localhost:8080"
         },
