@@ -51,7 +51,7 @@ WORKDIR /app
 # Add tini here
 RUN apk add --no-cache tini=0.19.0-r3
 
-USER node
+USER root
 
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/src ./src
