@@ -2,8 +2,6 @@
 
 //Memory strategy
 
-const logger = require('../../logger');
-
 module.exports = process.env.AWS_REGION ? require('./aws') : require('./memory');
 
 /*
