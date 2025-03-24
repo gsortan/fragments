@@ -22,17 +22,13 @@ ENV NPM_CONFIG_COLOR=false
 # Use /app as our working directory
 WORKDIR /app
 
-USER node
-
 # Option 2: relative path - Copy the package.json and package-lock.json
 # files into the working dir (/app).  NOTE: this requires that we have
 # already set our WORKDIR in a previous step.
 COPY --chown=node:node package*.json ./
 
-USER root
 # Install node dependencies defined in package-lock.json
 RUN npm ci --only=production
-USER node
 
 # Copy src to /app/src/
 COPY --chown=node:node ./src ./src
@@ -50,8 +46,6 @@ WORKDIR /app
 
 # Add tini here
 RUN apk add --no-cache tini=0.19.0-r3
-
-USER root
 
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/src ./src
