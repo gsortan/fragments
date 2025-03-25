@@ -23,7 +23,7 @@
         },
         {
           "name": "AWS_S3_BUCKET_NAME",
-          "value": "s3://gordon.tan-fragments"
+          "value": "gordon.tan-fragments"
         },
         {
           "name": "API_URL",
