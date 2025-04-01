@@ -7,7 +7,7 @@ Content-Type: application/json
 [BasicAuth]
 user1@email.com:password1
 # Body of the request goes in ```...``` when it's a string
-`{this:test,something:test}`
+`{"this":"test","something":"test"}`
 
 # 1. We expect to get back an HTTP 201
 HTTP/1.1 201
@@ -25,8 +25,7 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
 jsonpath "$.fragment.type" matches "application/json"
-# 19 is the length of our fragment data: 'This is a fragment!'
-jsonpath "$.fragment.size" == 26
+jsonpath "$.fragment.size" == 34
 # Capture the Location URL into a variable named `url`
 [Captures]
 url: header "Location"
@@ -38,6 +37,7 @@ user1@email.com:password1
 
 HTTP/1.1 200
 Content-Type: application/json
-Content-Length: 26
+Content-Length: 34
 [Asserts]
-body == "{this:test,something:test}"
+jsonpath "$.this" == "test"
+jsonpath "$.something" == "test"

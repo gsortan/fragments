@@ -1,18 +1,12 @@
-
-# tests/integration/lab-9-s3.hurl
-# Authenticated POST to /v1/fragments
+# Upload GIF Image
 POST http://localhost:8080/v1/fragments
-# We're sending a plain text fragment
-Content-Type: text/plain
-# Include HTTP Basic Auth credentials
+Content-Type: image/gif
 [BasicAuth]
 user1@email.com:password1
-# Body of the request goes in ```...``` when it's a string
-`Hello S3!`
 
-# 1. We expect to get back an HTTP 201
+file,test.gif;
+
 HTTP/1.1 201
-# We have various assertions about the response that we want to check
 [Asserts]
 # The Location header should look like what we expect (including the fragment id)
 header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
@@ -25,39 +19,48 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 # You could also write a regex for this and use matches
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.type" == "text/plain"
+jsonpath "$.fragment.type" == "image/gif"
+jsonpath "$.fragment.size" > 0
 
-jsonpath "$.fragment.size" == 9
-# Capture the Location URL into a variable named `url`
 [Captures]
 url: header "Location"
 
-# 2. Try to GET the fragment we just posted by its URL
-GET {{url}}
+# Convert GIF to JPG
+GET {{url}}.jpg
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
-Content-Type: text/plain
-Content-Length: 9
-[Asserts]
-body == "Hello S3!"
+Content-Type: image/jpeg
 
-DELETE {{url}}
+# Convert GIF to GIF
+GET {{url}}.gif
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
-[Asserts]
-jsonpath "$.status" == "ok"
+Content-Type: image/gif
 
-GET {{url}}
+# Convert GIF to WEBP
+GET {{url}}.webp
 [BasicAuth]
 user1@email.com:password1
 
-HTTP/1.1 404
-[Asserts]
-jsonpath "$.status" == "error"
-jsonpath "$.error.code" == 404
-jsonpath "$.error.message" matches ".*not found.*"
+HTTP/1.1 200
+Content-Type: image/webp
 
+# Convert GIF to AVIF
+GET {{url}}.avif
+[BasicAuth]
+user1@email.com:password1
+
+HTTP/1.1 200
+Content-Type: image/avif
+
+# Convert GIF to PNG 
+GET {{url}}.png
+[BasicAuth]
+user1@email.com:password1
+
+HTTP/1.1 200
+Content-Type: image/png

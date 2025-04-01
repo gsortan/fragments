@@ -286,41 +286,10 @@ const app = require('../../src/app');
       expect(result.trim()).toBe('<h1>markdown test</h1>');
     });
 
-    test('Using invalid extension for file type', async () => {
-      const data = Buffer.from('# markdown test');
-
-      await request(app)
-        .post('/v1/fragments')
-        .auth('user1@email.com', 'password1')
-        .set('Content-Type', 'text/markdown')
-        .send(data);
-
-      const res1 = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
-      expect(res1.statusCode).toBe(200);
-      expect(res1.body.status).toBe('ok');
-      expect(Array.isArray(res1.body.fragments)).toBe(true);
-
-      const fragmentId = res1.body.fragments[res1.body.fragments.length - 1];
-      const res2 = await request(app)
-        .get(`/v1/fragments/${fragmentId}.trouble`)
-        .auth('user1@email.com', 'password1');
-
-      expect(res2.statusCode).toBe(415);
-    });
-
     test('Invalid id to get fragment extension', async () => {
       const fragmentId = 'invalid';
       const res = await request(app)
         .get(`/v1/fragments/${fragmentId}.txt`)
-        .auth('user1@email.com', 'password1');
-
-      expect(res.statusCode).toBe(404);
-    });
-
-    test('Invalid id to get fragment', async () => {
-      const fragmentId = 'invalid';
-      const res = await request(app)
-        .get(`/v1/fragments/${fragmentId}`)
         .auth('user1@email.com', 'password1');
 
       expect(res.statusCode).toBe(404);

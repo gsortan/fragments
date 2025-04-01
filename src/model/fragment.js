@@ -32,8 +32,12 @@ const validTypes = [
   'text/csv',
   'application/json',
   'application/yaml',
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/gif',
+  'image/avif',
 ];
-
 class Fragment {
   constructor({ id, ownerId, created, updated, type, size = 0 }) {
     logger.info({ id, ownerId, created, updated, type, size }, 'Creating new fragment instance');
@@ -145,7 +149,6 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    logger.info({ data }, 'setData function execution with passed in data');
     if (!Buffer.isBuffer(data)) {
       logger.error('Data is not a buffer');
       throw new Error(`Data is not a buffer`);
@@ -154,8 +157,6 @@ class Fragment {
     this.size = data.length;
 
     this.updated = new Date().toISOString();
-
-    logger.debug({ data }, 'Updated data');
 
     await writeFragmentData(this.ownerId, this.id, data);
 

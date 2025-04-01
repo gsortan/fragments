@@ -13,9 +13,9 @@ module.exports = async (req, res) => {
     const successResponse = createSuccessResponse();
     res.status(200).json(successResponse);
   } catch (error) {
-    logger.error(`Error deleting user fragment: ${error.message}`);
-    if (error.message.includes('not found')) {
-      return res.status(404).json(createErrorResponse(404, error.message));
+    logger.error(`Error deleting user fragment: Fragment not found`);
+    if (error.message.includes('missing entry')) {
+      return res.status(404).json(createErrorResponse(404, 'Fragment not found'));
     }
 
     res.status(500).json({ error: 'Internal Server Error' });

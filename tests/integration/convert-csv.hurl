@@ -1,18 +1,12 @@
-
-# tests/integration/lab-9-s3.hurl
-# Authenticated POST to /v1/fragments
+# Upload CSV
 POST http://localhost:8080/v1/fragments
-# We're sending a plain text fragment
-Content-Type: text/plain
-# Include HTTP Basic Auth credentials
+Content-Type: text/csv
 [BasicAuth]
 user1@email.com:password1
-# Body of the request goes in ```...``` when it's a string
-`Hello S3!`
 
-# 1. We expect to get back an HTTP 201
+`name,age\nJohn,30\nJane,25`
+
 HTTP/1.1 201
-# We have various assertions about the response that we want to check
 [Asserts]
 # The Location header should look like what we expect (including the fragment id)
 header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
@@ -25,39 +19,44 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 # You could also write a regex for this and use matches
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.type" == "text/plain"
+jsonpath "$.fragment.type" == "text/csv"
+jsonpath "$.fragment.size" == 24
 
-jsonpath "$.fragment.size" == 9
-# Capture the Location URL into a variable named `url`
 [Captures]
 url: header "Location"
 
-# 2. Try to GET the fragment we just posted by its URL
-GET {{url}}
+# Convert CSV to JSON
+GET {{url}}.json
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
-Content-Type: text/plain
-Content-Length: 9
+Content-Type: application/json; charset=utf-8
+Content-Length: 92
 [Asserts]
-body == "Hello S3!"
+jsonpath "$[0].name" == "John"
+jsonpath "$[0].age" == "30"
+jsonpath "$[1].name" == "Jane"
+jsonpath "$[1].age" == "25"
 
-DELETE {{url}}
+# Convert CSV to Plain Text
+GET {{url}}.txt
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
+Content-Type: text/plain; charset=utf-8
+Content-Length: 24
 [Asserts]
-jsonpath "$.status" == "ok"
+body == "name,age\nJohn,30\nJane,25"
 
-GET {{url}}
+# Convert CSV to CSV
+GET {{url}}.csv
 [BasicAuth]
 user1@email.com:password1
 
-HTTP/1.1 404
+HTTP/1.1 200
+Content-Type: text/csv; charset=utf-8
+Content-Length: 24
 [Asserts]
-jsonpath "$.status" == "error"
-jsonpath "$.error.code" == 404
-jsonpath "$.error.message" matches ".*not found.*"
-
+body == "name,age\nJohn,30\nJane,25"

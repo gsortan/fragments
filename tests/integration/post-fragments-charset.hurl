@@ -25,7 +25,6 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
 jsonpath "$.fragment.type" matches "text/plain; charset=utf-8"
-# 19 is the length of our fragment data: 'This is a fragment!'
 jsonpath "$.fragment.size" == 19
 # Capture the Location URL into a variable named `url`
 [Captures]

@@ -1,18 +1,12 @@
-
-# tests/integration/lab-9-s3.hurl
-# Authenticated POST to /v1/fragments
+# Upload Plain Text
 POST http://localhost:8080/v1/fragments
-# We're sending a plain text fragment
 Content-Type: text/plain
-# Include HTTP Basic Auth credentials
 [BasicAuth]
 user1@email.com:password1
-# Body of the request goes in ```...``` when it's a string
-`Hello S3!`
 
-# 1. We expect to get back an HTTP 201
+`Just some plain text`
+
 HTTP/1.1 201
-# We have various assertions about the response that we want to check
 [Asserts]
 # The Location header should look like what we expect (including the fragment id)
 header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
@@ -26,38 +20,18 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
 jsonpath "$.fragment.type" == "text/plain"
+jsonpath "$.fragment.size" == 20
 
-jsonpath "$.fragment.size" == 9
-# Capture the Location URL into a variable named `url`
 [Captures]
 url: header "Location"
 
-# 2. Try to GET the fragment we just posted by its URL
-GET {{url}}
+# Convert Plain Text to .txt
+GET {{url}}.txt
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
-Content-Type: text/plain
-Content-Length: 9
+Content-Type: text/plain; charset=utf-8
+Content-Length: 20
 [Asserts]
-body == "Hello S3!"
-
-DELETE {{url}}
-[BasicAuth]
-user1@email.com:password1
-
-HTTP/1.1 200
-[Asserts]
-jsonpath "$.status" == "ok"
-
-GET {{url}}
-[BasicAuth]
-user1@email.com:password1
-
-HTTP/1.1 404
-[Asserts]
-jsonpath "$.status" == "error"
-jsonpath "$.error.code" == 404
-jsonpath "$.error.message" matches ".*not found.*"
-
+body == "Just some plain text"

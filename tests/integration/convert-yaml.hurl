@@ -1,18 +1,12 @@
-
-# tests/integration/lab-9-s3.hurl
-# Authenticated POST to /v1/fragments
+# Upload YAML
 POST http://localhost:8080/v1/fragments
-# We're sending a plain text fragment
-Content-Type: text/plain
-# Include HTTP Basic Auth credentials
+Content-Type: application/yaml
 [BasicAuth]
 user1@email.com:password1
-# Body of the request goes in ```...``` when it's a string
-`Hello S3!`
 
-# 1. We expect to get back an HTTP 201
+`name: Alice\nscore: 95`
+
 HTTP/1.1 201
-# We have various assertions about the response that we want to check
 [Asserts]
 # The Location header should look like what we expect (including the fragment id)
 header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
@@ -25,39 +19,43 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 # You could also write a regex for this and use matches
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.type" == "text/plain"
+jsonpath "$.fragment.type" == "application/yaml"
+jsonpath "$.fragment.size" == 21
 
-jsonpath "$.fragment.size" == 9
-# Capture the Location URL into a variable named `url`
 [Captures]
 url: header "Location"
 
-# 2. Try to GET the fragment we just posted by its URL
-GET {{url}}
+# Convert YAML to Plain Text
+GET {{url}}.txt
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
-Content-Type: text/plain
-Content-Length: 9
+Content-Length: 21
 [Asserts]
-body == "Hello S3!"
+header "Content-Type" startsWith "text/plain"
+body == "name: Alice\nscore: 95"
 
-DELETE {{url}}
+# Convert YAML to JSON
+GET {{url}}.json
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
+Content-Length: 36
 [Asserts]
-jsonpath "$.status" == "ok"
+header "Content-Type" startsWith "application/json"
+jsonpath "$.name" == "Alice"
+jsonpath "$.score" == 95
 
-GET {{url}}
+
+# Convert YAML to YAML 
+GET {{url}}.yaml
 [BasicAuth]
 user1@email.com:password1
 
-HTTP/1.1 404
+HTTP/1.1 200
+Content-Length: 21
 [Asserts]
-jsonpath "$.status" == "error"
-jsonpath "$.error.code" == 404
-jsonpath "$.error.message" matches ".*not found.*"
-
+header "Content-Type" startsWith "application/yaml"
+body == "name: Alice\nscore: 95"

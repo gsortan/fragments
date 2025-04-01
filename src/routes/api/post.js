@@ -7,19 +7,10 @@ module.exports = async (req, res) => {
     logger.info('Fragment post route');
 
     if (!Buffer.isBuffer(req.body)) {
+      logger.debug(req.body);
       logger.error(`Unsupported Content-Type received: ${req.headers['content-type']}`);
       throw new Error('Unsupported Content-Type');
     }
-
-    const validTypes = [
-      'text/plain',
-      'text/plain; charset=utf-8',
-      'text/markdown',
-      'text/html',
-      'text/csv',
-      'application/json',
-      'application/yaml',
-    ];
 
     const baseUrl = process.env.API_URL || `${req.protocol}://${req.headers.host}`;
     logger.debug({ baseUrl });
@@ -27,7 +18,7 @@ module.exports = async (req, res) => {
 
     const type = req.headers['content-type'];
 
-    if (!validTypes.includes(type)) {
+    if (!Fragment.isSupportedType(type)) {
       logger.error(`Unsupported Content-Type received: ${req.headers['content-type']}`);
       return res.status(415).json(createErrorResponse(415, 'Unsupported Content-Type'));
     }
