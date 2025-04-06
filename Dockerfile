@@ -57,10 +57,12 @@ ENTRYPOINT ["/sbin/tini", "--"]
 
 # Automated Health Check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl --f http://localhost:8080 || exit 1
+  CMD curl --f http://localhost:${PORT} || exit 1
+
+    
 
 # Start the container by running our server
-CMD ["npm", "start"]
+CMD ["node", "src/index.js"]
 
 # We run our service on port 8080
-EXPOSE 8080
+EXPOSE ${PORT}
