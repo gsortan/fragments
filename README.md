@@ -1,6 +1,6 @@
-# fragments
+# Fragment Management API 
 
-This is a repo for the cloud computing course (CCP555)
+This project provides a dependable and scalable service for managing data fragments. It supports creating, retrieving, updating, and removing fragments while accommodating different content formats and access rules. The system is designed to run consistently across both local and deployed environments, addressing the challenge of securely storing and serving fragment data in a flexible and reliable way.
 
 # NPM Scripts
 
